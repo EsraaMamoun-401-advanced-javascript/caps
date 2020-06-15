@@ -31,7 +31,7 @@
 
 #### How to initialize/run your application (where applicable)
 
-- `node index.js`
+- `node caps.js`
 <!-- #### How to use your library (where applicable)
 - Lint Tests: `npm run lint` -->
 
