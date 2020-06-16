@@ -1,17 +1,28 @@
-'use strict';
+const net = require('net');
+const server = new net.Socket();
 
-const events = require('./events.js');
+server.connect({ port: 3000, host: 'localhost' }, () => {
+  console.log('connected to server');
+});
 
+server.on('data', (payload) => {
+  let event = JSON.parse(payload.toString());
 
-function driver(data) {
-  setTimeout(() => {
-    console.log(`DRIVER: picked up ${data.orderId}`);
-    events.emit('in-transit', data);
-  }, 1000);
-  setTimeout(() => {
-    console.log(`delivered up ${data.orderId}`);
-    events.emit('delivered', data);
-  }, 3000);
-}
+  if (event.event === 'pickup') {
 
-module.exports = driver;
+    setTimeout(() => {
+      let newPayload = { event: 'in-transit', order: event.order };
+      console.log('picked up order', event.order.id);
+      server.write(JSON.stringify(newPayload));
+    }, 1000);
+  }
+
+  if (event.event === 'in-transit') {
+
+    setTimeout(() => {
+      let newPayload = { event: 'delivered', order: event.order };
+      console.log('delivered order', event.order.id);
+      server.write(JSON.stringify(newPayload));
+    }, 3000);
+  }
+});

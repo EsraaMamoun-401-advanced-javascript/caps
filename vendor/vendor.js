@@ -1,21 +1,27 @@
-'use strict';
-
-const events = require('./events.js');
+const net = require('net');
 const faker = require('faker');
+const client = new net.Socket();
 
+client.connect({ port: 3000, host: 'localhost' }, () => {
+    console.log('connected to server');
+});
 
-events.on('delivered',consoleThanks);
+client.on('data', (payload) => {
+    let parsed = JSON.parse(payload.toString());
 
-function consoleThanks(payload) {
-  console.log(`VENDOR: Thank you for delivering ${payload.orderId}`);
-}
+    if (parsed.event === 'delivered') {
+        console.log('Thank you for delivering order', parsed.order.id);
+    }
+});
 
 setInterval(() => {
-  let data = {
-    storeName : faker.company.companyName(),
-    orderId : faker.random.uuid(),
-    customerName : faker.name.findName(),
-    address : faker.address.streetAddress(),
-  };
-  events.emit('pickup', data);
+    let order = {
+        time: faker.date.recent(),
+        store: faker.company.companyName(),
+        id: faker.random.uuid(),
+        name: faker.name.findName(),
+        address: faker.address.streetAddress(),
+    };
+    
+    client.write(JSON.stringify({ event: 'pickup', order: order }));
 }, 5000);

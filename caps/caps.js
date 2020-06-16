@@ -1,25 +1,51 @@
-'use strict';
+const net = require('net');
+const server = net.createServer();
 
-const events = require('./src/events.js');
-const driver = require('./src/driver.js');
+server.listen(3000, () => {
+  console.log('server up and running on 3000');
+});
 
-require('./src/vendor.js');
+let socketPool = [];
 
-events.on('pickup', payload => logIt('pickup', payload));
-events.on('in-transit', payload => logIt1('in-transit', payload));
-events.on('delivered', payload => logIt2('delivered', payload));
+const logger = (payload) => {
+  let event = JSON.parse(payload.toString());
 
-function logIt(event, payload) {
-  logIt1(event, payload);
-  driver(payload);
-}
+  for (let i = 0; i < socketPool.length; i++) {
+    let socket = socketPool[i];
+    socket.write(payload);
+  }
 
-function logIt1(event, payload) {
-  let time = new Date();
-  console.log('EVENT',{event, time, payload});
-}
+  if (event.event === 'pickup') {
+    // console.log('pickup');
+    console.log('- Time:', new Date());
+    // console.log('- Store:', event.order.store);
+    // console.log('- OrderID:', event.order.id);
+    // console.log('- Customer:', event.order.name);
+    // console.log('- Address:', event.order.address);
+    console.log(event.order);
+    
+  }
 
-function logIt2(event, payload) {
-  let time = new Date();
-  console.log('EVENT',{event, time, payload});
-}
+  if (event.event === 'in-transit')
+    console.log('in-transit order', event.order.id);
+
+  if (event.event === 'delivered')
+    console.log('delivered order', event.order.id);
+};
+
+server.on('connection', (socket) => {
+  console.log('socket connected to me');
+  socketPool.push(socket);
+  socket.on('data', logger);
+
+  socket.on('error', (e) => {console.log('CAPS ERROR: ', e);});
+
+  socket.on('end', (err) => {
+    console.log('connection ended', err);
+    if(err) return err;
+  });
+});
+
+server.on('close', function() {
+  console.log('Logger Connection got closed');
+});
