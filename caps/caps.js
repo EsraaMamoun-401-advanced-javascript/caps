@@ -1,4 +1,5 @@
 const net = require('net');
+const { exit } = require('process');
 const server = net.createServer();
 
 server.listen(3000, () => {
@@ -16,21 +17,16 @@ const logger = (payload) => {
   }
 
   if (event.event === 'pickup') {
-    // console.log('pickup');
+    console.log('pickup');
     console.log('- Time:', new Date());
-    // console.log('- Store:', event.order.store);
-    // console.log('- OrderID:', event.order.id);
-    // console.log('- Customer:', event.order.name);
-    // console.log('- Address:', event.order.address);
     console.log(event.order);
-    
   }
 
   if (event.event === 'in-transit')
-    console.log('in-transit order', event.order.id);
+    console.log('in-transit order', event.order.payload.OrderID);
 
   if (event.event === 'delivered')
-    console.log('delivered order', event.order.id);
+    console.log('delivered order', event.order.payload.OrderID);
 };
 
 server.on('connection', (socket) => {
@@ -38,11 +34,11 @@ server.on('connection', (socket) => {
   socketPool.push(socket);
   socket.on('data', logger);
 
-  socket.on('error', (e) => {console.log('CAPS ERROR: ', e);});
+  socket.on('error', (error) => {console.log('CAPS ERROR: ', error);});
 
-  socket.on('end', (err) => {
-    console.log('connection ended', err);
-    if(err) return err;
+  socket.on('end', (end) => {
+    console.log('Connection ended');
+    exit();
   });
 });
 
