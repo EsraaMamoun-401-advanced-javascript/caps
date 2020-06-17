@@ -1,62 +1,30 @@
-'use strict';
+// 'use strict';
 
-const caps = require('../lib/caps.js');
-const pickupHandler = caps.pickupHandler;
-const transitHandler = caps.inTransitHandler;
-const deliveredHandler = caps.deliveredHandler;
+// require('../caps');
+// const events = require('../src/events');
 
-let consoleSpy = jest.spyOn(console, 'log');
+// let spy = jest.spyOn(console, 'log').mockImplementation();
 
-describe('test the Pickup handler function independently', () => {
-  it('pickup handler works', () => {
-    consoleSpy.mockClear();
+// let data = {
+//   Store: 'OpheliaStore',
+//   OrderID: 'Alexzander Leannon',
+//   Customer: '3031995',
+//   Address: '60945 Dicki Way East Carmen Oregon',
+// };
 
-    let payload = { date: '2020-06-14T17:19:29.788Z',
-      store: 'Kulas, West and Kuhn',
-      orderId: 44686,
-      customer: 'Alexzander Leannon',
-      address: '60945 Dicki Way East Carmen Oregon' };
+// describe('caps test', () => { 
+//   it('pickup', () => {
+//     events.emit('pickup', data);
+//     expect(spy).toHaveBeenCalled();
+//   });
 
-    pickupHandler(payload);
-    expect(consoleSpy).toHaveBeenCalled();
-  });
-});
+//   it('in-transit', () => {
+//     events.emit('in-transit', data);
+//     expect(spy).toHaveBeenCalled();
+//   });
 
-describe('test the transit handler function independently', () => {
-  it('transit handler works', () => {
-    consoleSpy.mockClear();
-
-    let payload = {
-      date: '2020-06-14T17:19:29.788Z',
-      store: 'Kulas, West and Kuhn',
-      orderId: 44686,
-      customer: 'Alexzander Leannon',
-      address: '60945 Dicki Way East Carmen Oregon',
-    };
-
-    transitHandler(payload);
-    setTimeout(() => {
-
-      expect(consoleSpy).toHaveBeenCalledWith('DRIVER picked up order 2');
-    }, 3000);
-  });
-});
-
-describe('test the thank you handler function independently', () => {
-  it('thank you handler works', () => {
-    consoleSpy.mockClear();
-
-    let payload = {
-      date: '2020-06-14T17:19:29.788Z',
-      store: 'Kulas, West and Kuhn',
-      orderId: 44686,
-      customer: 'Alexzander Leannon',
-      address: '60945 Dicki Way East Carmen Oregon',
-    };
-
-    deliveredHandler(payload);
-    setTimeout(() => {
-      expect(consoleSpy).toHaveBeenCalled();
-    }, 3000);
-  });
-});
+//   it('delivered', () => {
+//     events.emit('delivered', data);
+//     expect(spy).toHaveBeenCalled();
+//   }); 
+// });
